@@ -1,0 +1,34 @@
+
+# Header list
+set(include-dir ../include/)
+#set(HEADER_LIST
+#  ${include-dir}/mujoco-test/temp.h
+#  )
+
+# Source list
+#set(SOURCE_LIST
+#  temp.cpp
+#  )
+
+# Make an automatic library - will be static or dynamic based on user setting
+add_library(mujoco-test ${SOURCE_LIST} ${HEADER_LIST})
+target_include_directories(mujoco-test PUBLIC ../include)
+
+# All users of this library will need at least C++17
+target_compile_features(mujoco-test PUBLIC cxx_std_17)
+
+# Link library with mujoco and dependencies
+include(AddMujocoAndDependencies)
+target_link_libraries(mujoco-test PUBLIC mujoco::mujoco)
+target_link_libraries(mujoco-test PUBLIC glfw)
+
+# Threading
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(mujoco-test PRIVATE Threads::Threads)
+
+# IDEs should put the headers in a nice place
+source_group(
+  TREE "${PROJECT_SOURCE_DIR}/include"
+  PREFIX "Header Files"
+  FILES ${HEADER_LIST})
