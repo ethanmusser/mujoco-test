@@ -18,3 +18,19 @@ MuJoCo version.
 4. Extract the downloaded `mujoco-2.3.X` directory into the
 `~/.mujoco/mujoco-2.3.X` directory. If you want to specify a nonstandard
 location for the package, set the `mujoco_INSTALL_PATH` environment variable.
+
+## Building & Making
+
+Normal builds can be run by calling the following from within the 
+`build` directory.
+
+```shell
+cmake .. && make
+```
+
+To build clean, run the following command from within the 
+`build` directory.
+
+```shell
+cd .. && rm -R build/ && mkdir build && cd build/ && cmake .. && make
+```
