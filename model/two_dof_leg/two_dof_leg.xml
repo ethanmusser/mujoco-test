@@ -1,0 +1,124 @@
+<mujoco model="two_dof_leg">
+  <!-- MJCF compiler settings -->
+  <compiler autolimits="true" meshdir="assets"/>
+
+  <!-- visual assets -->
+  <asset>
+    <!-- textures -->
+
+    <!-- materials -->
+    <material name="brushed-aluminum" rgba="0.508273 0.508273 0.508273 1"
+              reflectance="0.50754" specular="0.19225" shininess="0.512"/>
+    <material name="black-aluminum" rgba=".01 .01 .01 1"
+              reflectance="0.01" specular="0.5" shininess="0.32"/>
+
+    <!-- colors -->
+    <material name="chrome" rgba="0.4 0.4 0.4 1" reflectance="0.25"
+              specular="0.774597" shininess="0.768"/>
+    <material name="tin" rgba="0.427451 0.470588 0.541176 1"
+              reflectance="0.8" specular="0.4" shininess="0.985"/>
+    <material name="silver" rgba="0.508273 0.508273 0.508273 1"
+              reflectance="0.50754" specular="0.19225" shininess="0.512"/>
+    <material name="pol-silver" rgba="0.773911 0.773911 0.773911 1"
+              reflectance="0.2775" specular="0.23125" shininess="0.896"/>
+    <material name="black" rgba=".01 .01 .01 1"
+              reflectance="0.01" specular="0.5" shininess="0.32"/>
+    <material name="green" rgba=".1 .35 .1 1"
+              reflectance="0" specular="0.5" shininess="0.32"/>
+    <material name="dark" specular="0" shininess="0.25" rgba="0.2 0.2 0.2 1"/>
+
+    <!-- meshes -->
+    <mesh name="vslot" file="vslot.stl" refquat="1 0 0 1"/>
+    <mesh name="gantry" file="gantry.stl"/>
+    <mesh name="chassis" file="chassis.stl" refquat="-1 1 0 0"/>
+    <mesh name="motor" file="motor.stl" refquat="1 1 0 0"/>
+    <mesh name="thigh" file="thigh.stl" refquat="1 1 0 0"/>
+    <mesh name="shin" file="shin.stl"/>
+  </asset>
+
+  <!-- defaults -->
+  <default>
+    <!-- display defaults -->
+    <default class="visual">
+      <geom contype="0" conaffinity="0"/>
+    </default>
+    <default class="aluminum">
+      <geom density="2710"/>
+      <default class="brushed-aluminum">
+        <geom material="brushed-aluminum"/>
+      </default>
+      <default class="black-aluminum">
+        <geom material="black-aluminum"/>
+      </default>
+    </default>
+
+    <!-- geom/joint defaults -->
+    <default class="two-dof-leg">
+      <!-- motor geom -->
+      <default class="motor">
+        <geom type="mesh" mesh="motor" material="brushed-aluminum" mass="0.600"/>
+      </default>
+      <!-- motor joint parameters -->
+      <default class="motor-joint">
+        <joint type="hinge" armature=".00001707" damping="1" frictionloss="0.2"/>
+      </default>
+    </default>
+  </default>
+
+  <!-- bodies -->
+  <worldbody>
+    <!-- lights -->
+    <light name="spotlight" mode="targetbodycom" target="body" pos="0 1 2"/>
+
+    <!-- linear rail -->
+    <geom class="visual" material="brushed-aluminum" type="mesh" mesh="vslot" pos="0 -0.01 0"/>
+
+    <!-- limb assembly -->
+    <body name="body" pos="0 0 .45">
+      <joint name="gantry" type="slide" pos="0 0 0" axis="0 0 1"/>
+      <geom type="mesh" mesh="gantry" material="black-aluminum" pos="0 .0025 0" mass=".09053"/>
+      <geom type="mesh" mesh="chassis" pos="0 .0055 0" quat="0 0 0 1" mass=".200"/>
+      <site name="imu" type="box" size=".003 .001 .0025" pos="0.11 0.01 0.04"/>  <!-- TODO: Move IMU to circuit geom. -->
+      <geom class="motor" pos="0 .015 .050"/>
+      <body name="thigh" pos="0 .05075 .050" axisangle="0 1 0 45">
+        <geom type="mesh" mesh="thigh" material="silver" pos="0 0 0" quat="0 0 1 0"/>
+        <joint class="motor-joint" name="hip-joint" axis="0 1 0" range="-60 240"/>
+        <geom class="motor" pos="0 0 -0.15" quat="0 0 0 1"/>
+        <body name="shin" pos="0 -0.03575 -0.15" axisangle="0 1 0 -90">
+          <geom type="mesh" mesh="shin" pos="0 0 0" quat="1 1 0 0" material="silver"/>
+          <joint class="motor-joint" name="knee-joint" axis="0 1 0" range="-154.5 -52.5"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <!-- actuators -->
+  <actuator>
+    <!-- motors -->
+    <motor name="hip-motor"   joint="hip-joint"   gear="6"  ctrlrange="-3 3"/>
+    <motor name="knee-motor"  joint="knee-joint"  gear="6"  ctrlrange="-3 3"/>
+  </actuator>
+
+  <!-- sensors -->
+  <sensor>
+    <!-- motor inputs -->
+    <actuatorpos name="hip-pos-input"   actuator="hip-motor"/>
+    <actuatorvel name="hip-vel-input"   actuator="hip-motor"/>
+    <actuatorfrc name="hip-frc-input"   actuator="hip-motor"/>
+    <actuatorpos name="knee-pos-input"  actuator="knee-motor"/>
+    <actuatorvel name="knee-vel-input"  actuator="knee-motor"/>
+    <actuatorfrc name="knee-frc-input"  actuator="knee-motor"/>
+
+    <!-- motor outputs -->
+    <jointvel    name="hip-vel-output"   joint="hip-joint"   noise="2e-4"/>
+    <jointpos    name="hip-pos-output"   joint="hip-joint"   noise="2e-4"/>
+    <jointpos    name="knee-pos-output"  joint="knee-joint"  noise="2e-4"/>
+    <jointpos    name="knee-vel-output"  joint="knee-joint"  noise="2e-4"/>
+
+    <!-- imu outputs -->
+    <framequat     name="chassis-orientation" objtype="site" objname="imu"/>
+    <gyro          name="chassis-angular-velocity"    site="imu" noise="5e-4" cutoff="34.9"/>
+    <accelerometer name="chassis-linear-acceleration" site="imu" noise="1e-2" cutoff="157"/>
+  </sensor>
+
+</mujoco>
