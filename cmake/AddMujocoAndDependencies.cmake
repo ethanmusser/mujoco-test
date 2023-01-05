@@ -5,30 +5,30 @@
 #
 # The following variables can be set in the calling scope or via environment
 # variables, if desired:
-#   mujoco_INSTALL_VERSION - the installed mujoco version (default 2.2.2)
+#   mujoco_INSTALL_VERSION - the installed mujoco version (default 2.3.0)
 #   mujoco_INSTALL_PATH - the mujoco install path
 #                         (default ~/.mujoco/mujoco-${mujoco_INSTALL_VERSION}).
 #
 # The following dependencies are found:
-#   mujoco (>= 2.2.0)
+#   mujoco (>= 2.3.0)
 #   glfw
-# These are the only mujoco requirements as of mujoco 2.2.0. Note that mujoco is
+# These are the only mujoco requirements as of mujoco 2.3.0. Note that mujoco is
 # also added as the namespaced target mujoco::mujoco.
 #
-# Copyright (c) 2022 The Trustees of the University of Pennsylvania.
+# Copyright (c) 2023 The Trustees of the University of Pennsylvania.
 # All rights reserved.
 #
 # See `LICENSE` for license information.
 #
 
 # Set mujoco minimum required version
-set(mujoco_MIN_VERSION 2.2.0)
+set(mujoco_MIN_VERSION 2.3.0)
 
 # Set mujoco install version
 if (DEFINED ENV{mujoco_INSTALL_VERSION})
   set(mujoco_INSTALL_VERSION $ENV{mujoco_INSTALL_VERSION})
 elseif (NOT mujoco_INSTALL_VERSION)
-  set(mujoco_INSTALL_VERSION 2.2.2)
+  set(mujoco_INSTALL_VERSION 2.3.0)
 endif ()
 message(DEBUG "mujoco_INSTALL_VERSION is ${mujoco_INSTALL_VERSION}")
 
