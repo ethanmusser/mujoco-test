@@ -21,3 +21,6 @@ add_subdirectory(sim)
 add_subdirectory(src)
 
 add_subdirectory(examples)
+
+# Third-party
+add_subdirectory(thirdparty/lodepng)
