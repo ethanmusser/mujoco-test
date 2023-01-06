@@ -57,58 +57,70 @@ extern "C" {
 #endif
 }
 
-namespace {
-namespace mj = ::mujoco;
-namespace mju = ::mujoco::sample_util;
-
-using ::mujoco::Glfw;
-
-// constants
-const double syncMisalign = 0.1;        // maximum mis-alignment before re-sync (simulation seconds)
-const double simRefreshFraction = 0.7;  // fraction of refresh available for simulation
-const int kErrorLength = 1024;          // load error string length
-
-// model and data
-mjModel* m = nullptr;
-mjData* d = nullptr;
-
-// control noise variables
-mjtNum* ctrlnoise = nullptr;
-
-
-
-//---------------------------------------- plugin handling -----------------------------------------
-
-// return the path to the directory containing the current executable
-// used to determine the location of auto-loaded plugin libraries
-std::string getExecutableDir();
-
 
 #if defined(_WIN32) || defined(__CYGWIN__)
-using unique_dlhandle = std::unique_ptr<std::remove_pointer_t<HMODULE>, decltype(&FreeLibrary)>;
+typedef std::unique_ptr<std::remove_pointer_t<HMODULE>, decltype(&FreeLibrary)> unique_dlhandle;
 #else
-using unique_dlhandle = std::unique_ptr<void, decltype(&dlclose)>;
+typedef std::unique_ptr<void, decltype(&dlclose)> unique_dlhandle;
 #endif
 
 
-// scan for libraries in the plugin directory to load additional plugins
-std::vector<unique_dlhandle> scanPluginLibraries();
+class MuJoCoSimulation {
+
+ public:
+
+  //---------------------------------------- plugin handling -----------------------------------------
+
+  // return the path to the directory containing the current executable
+  // used to determine the location of auto-loaded plugin libraries
+  std::string getExecutableDir();
+
+//#if defined(_WIN32) || defined(__CYGWIN__)
+//  using unique_dlhandle = std::unique_ptr<std::remove_pointer_t<HMODULE>, decltype(&FreeLibrary)>;
+//#else
+//  using unique_dlhandle = std::unique_ptr<void, decltype(&dlclose)>;
+//#endif
+
+  // scan for libraries in the plugin directory to load additional plugins
+  std::vector<unique_dlhandle> scanPluginLibraries();
 
 
-//------------------------------------------- simulation -------------------------------------------
+  //------------------------------------------- simulation -------------------------------------------
 
 
-mjModel* LoadModel(const char* file, mj::Simulate& sim);
+  mjModel *LoadModel(const char *file, ::mujoco::Simulate &sim);
 
-// simulate in background thread (while rendering in main thread)
-void PhysicsLoop(mj::Simulate& sim);
-}  // namespace
+  // simulate in background thread (while rendering in main thread)
+  void PhysicsLoop(::mujoco::Simulate &sim);
 
-//-------------------------------------- physics_thread --------------------------------------------
+ protected:
 
-void PhysicsThread(mj::Simulate* sim, const char* filename);
+  // constants
+  static constexpr int kErrorLength = 1024;  // load error string length
+  const double syncMisalign = 0.1;           // maximum mis-alignment before re-sync (simulation seconds)
+  const double simRefreshFraction = 0.7;     // fraction of refresh available for simulation
+
+  // model and data
+  mjModel *m = nullptr;
+  mjData *d = nullptr;
+
+  // control noise variables
+  mjtNum *ctrlnoise = nullptr;
+
+};
+
+class MuJoCoSimulationThreaded : public MuJoCoSimulation {
+
+ public:
+  //-------------------------------------- physics_thread --------------------------------------------
+
+  void PhysicsThread(::mujoco::Simulate *sim, const char *filename);
+
+};
 
 //------------------------------------------ main --------------------------------------------------
 
 // run event loop
-int EventLoop(int argc, const char** argv);
+int EventLoop(int argc, const char **argv);
+
+

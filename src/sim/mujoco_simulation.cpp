@@ -26,9 +26,15 @@
 #include "sim/mujoco_simulation.h"
 
 
+namespace mj = ::mujoco;
+namespace mju = ::mujoco::sample_util;
+
+using ::mujoco::Glfw;
+
+
 //---------------------------------------- plugin handling -----------------------------------------
 
-std::string getExecutableDir() {
+std::string MuJoCoSimulation::getExecutableDir() {
 #if defined(_WIN32) || defined(__CYGWIN__)
   constexpr char kPathSep = '\\';
   std::string realpath = [&]() -> std::string {
@@ -121,7 +127,7 @@ std::string getExecutableDir() {
   return "";
 }
 
-std::vector<unique_dlhandle> scanPluginLibraries() {
+std::vector<unique_dlhandle> MuJoCoSimulation::scanPluginLibraries() {
   // check and print plugins that are linked directly into the executable
   int nplugin = mjp_pluginCount();
   if (nplugin) {
@@ -224,7 +230,7 @@ std::vector<unique_dlhandle> scanPluginLibraries() {
 
 //------------------------------------------- simulation -------------------------------------------
 
-mjModel* LoadModel(const char* file, mj::Simulate& sim) {
+mjModel* MuJoCoSimulation::LoadModel(const char* file, mj::Simulate& sim) {
   // this copy is needed so that the mju::strlen call below compiles
   char filename[mj::Simulate::kMaxFilenameLength];
   mju::strcpy_arr(filename, file);
@@ -272,7 +278,7 @@ mjModel* LoadModel(const char* file, mj::Simulate& sim) {
   return mnew;
 }
 
-void PhysicsLoop(mj::Simulate& sim) {
+void MuJoCoSimulation::PhysicsLoop(mj::Simulate& sim) {
   // cpu-sim syncronization point
   double syncCPU = 0;
   mjtNum syncSim = 0;
@@ -425,7 +431,7 @@ void PhysicsLoop(mj::Simulate& sim) {
 
 //-------------------------------------- physics_thread --------------------------------------------
 
-void PhysicsThread(mj::Simulate* sim, const char* filename) {
+void MuJoCoSimulationThreaded::PhysicsThread(mj::Simulate* sim, const char* filename) {
   // request loadmodel if file given (otherwise drag-and-drop)
   if (filename != nullptr) {
     m = LoadModel(filename, *sim);
@@ -459,8 +465,11 @@ int EventLoop(int argc, const char** argv) {
     mju_error("Headers and library have different versions");
   }
 
+  // Initialize threaded MuJoCo simulation object
+  MuJoCoSimulationThreaded mjsimt;
+
   // scan for libraries in the plugin directory to load additional plugins
-  std::vector<unique_dlhandle> dso_handles = scanPluginLibraries();
+  std::vector<unique_dlhandle> dso_handles = mjsimt.scanPluginLibraries();
 
   // simulate object encapsulates the UI
   auto sim = std::make_unique<mj::Simulate>();
@@ -476,7 +485,7 @@ int EventLoop(int argc, const char** argv) {
   }
 
   // start physics thread
-  std::thread physicsthreadhandle = std::thread(&PhysicsThread, sim.get(), filename);
+  std::thread physicsthreadhandle = std::thread(&MuJoCoSimulationThreaded::PhysicsThread, mjsimt, sim.get(), filename);
 
   // start simulation UI loop (blocking call)
   sim->renderloop();
