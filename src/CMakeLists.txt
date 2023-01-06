@@ -6,6 +6,7 @@ set(HEADER_LIST
   ${include-dir}/sim/glfw_dispatch.h
   ${include-dir}/sim/simulate.h
   ${include-dir}/sim/uitools.h
+  ${include-dir}/sim/mujoco_simulation.h
   )
 
 # Source list
@@ -13,6 +14,7 @@ set(SOURCE_LIST
   sim/glfw_dispatch.cpp
   sim/simulate.cpp
   sim/uitools.cpp
+  sim/mujoco_simulation.cpp
   )
 
 # Make an automatic library - will be static or dynamic based on user setting
