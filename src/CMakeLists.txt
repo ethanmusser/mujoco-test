@@ -1,14 +1,19 @@
 
 # Header list
 set(include-dir ../include/)
-#set(HEADER_LIST
-#  ${include-dir}/mujoco-test/temp.h
-#  )
+set(HEADER_LIST
+  ${include-dir}/sim/array_safety.h
+  ${include-dir}/sim/glfw_dispatch.h
+  ${include-dir}/sim/simulate.h
+  ${include-dir}/sim/uitools.h
+  )
 
 # Source list
-#set(SOURCE_LIST
-#  temp.cpp
-#  )
+set(SOURCE_LIST
+  sim/glfw_dispatch.cpp
+  sim/simulate.cpp
+  sim/uitools.cpp
+  )
 
 # Make an automatic library - will be static or dynamic based on user setting
 add_library(mujoco-test ${SOURCE_LIST} ${HEADER_LIST})
