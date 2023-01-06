@@ -2,6 +2,9 @@
   <!-- MJCF compiler settings -->
   <compiler autolimits="true" meshdir="assets"/>
 
+  <!-- timestep (1-kHz control loop) -->
+  <option timestep="0.0005"/>
+
   <!-- visual assets -->
   <asset>
     <!-- textures -->
