@@ -32,7 +32,7 @@ namespace mju = ::mujoco::sample_util;
 using ::mujoco::Glfw;
 
 
-//---------------------------------------- plugin handling -----------------------------------------
+// plugin handling
 
 std::string MuJoCoSimulation::getExecutableDir() {
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -228,7 +228,7 @@ std::vector<unique_dlhandle> MuJoCoSimulation::scanPluginLibraries() {
 }
 
 
-//------------------------------------------- simulation -------------------------------------------
+// simulation
 
 mjModel* MuJoCoSimulation::LoadModel(const char* file, mj::Simulate& sim) {
   // this copy is needed so that the mju::strlen call below compiles
@@ -429,7 +429,7 @@ void MuJoCoSimulation::PhysicsLoop(mj::Simulate& sim) {
 }
 
 
-//-------------------------------------- physics_thread --------------------------------------------
+// physics_thread
 
 void MuJoCoSimulationThreaded::PhysicsThread(mj::Simulate* sim, const char* filename) {
   // request loadmodel if file given (otherwise drag-and-drop)
@@ -456,7 +456,7 @@ void MuJoCoSimulationThreaded::PhysicsThread(mj::Simulate* sim, const char* file
 }
 
 
-//------------------------------------------ main --------------------------------------------------
+// main
 
 int EventLoop(int argc, const char** argv) {
   // print version, check compatibility

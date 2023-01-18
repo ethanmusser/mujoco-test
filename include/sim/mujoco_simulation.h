@@ -65,27 +65,34 @@ typedef std::unique_ptr<void, decltype(&dlclose)> unique_dlhandle;
 #endif
 
 
+/**
+ *
+ */
 class MuJoCoSimulation {
 
  public:
 
-  //---------------------------------------- plugin handling -----------------------------------------
+  // plugin handling
 
-  // return the path to the directory containing the current executable
-  // used to determine the location of auto-loaded plugin libraries
+  /**
+   * @brief Access the path to the directory containing the current executable used to
+   * determine the location of auto-loaded plugin libraries
+   * @details Access the path to the directory containing the current
+   * executable.  Used to determine the location of auto-loaded plugin
+   * libraries.
+   * @return Path to the directory containing the current executable
+   */
   std::string getExecutableDir();
 
-//#if defined(_WIN32) || defined(__CYGWIN__)
-//  using unique_dlhandle = std::unique_ptr<std::remove_pointer_t<HMODULE>, decltype(&FreeLibrary)>;
-//#else
-//  using unique_dlhandle = std::unique_ptr<void, decltype(&dlclose)>;
-//#endif
-
   // scan for libraries in the plugin directory to load additional plugins
+  /**
+   * @brief scan for libraries in the plugin directory to load additional plugins
+   * @return
+   */
   std::vector<unique_dlhandle> scanPluginLibraries();
 
 
-  //------------------------------------------- simulation -------------------------------------------
+  // simulation
 
 
   mjModel *LoadModel(const char *file, ::mujoco::Simulate &sim);
@@ -112,13 +119,13 @@ class MuJoCoSimulation {
 class MuJoCoSimulationThreaded : public MuJoCoSimulation {
 
  public:
-  //-------------------------------------- physics_thread --------------------------------------------
+  // physics_thread
 
   void PhysicsThread(::mujoco::Simulate *sim, const char *filename);
 
 };
 
-//------------------------------------------ main --------------------------------------------------
+// main
 
 // run event loop
 int EventLoop(int argc, const char **argv);
